@@ -10,7 +10,7 @@
 HINSTANCE hInst;                                // текущий экземпляр
 WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
-
+int score = 0;
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -142,12 +142,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_LBUTTONDOWN:
+        checkMouse(LOWORD(lParam), HIWORD(lParam));
+        InvalidateRect(hWnd, NULL, TRUE);
+        break;
+    case WM_CREATE:
+        generateField();
+        break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Добавьте сюда любой код прорисовки, использующий HDC...
             drawField(hdc);
+            TCHAR string1[] = _T("Счёт:");
+            TextOut(hdc, 1100, 250, string1, _tcslen(string1));
+            char sScore[5];
+            TCHAR tcharScore[5];
+            sprintf_s(sScore, 5, "%d", score);
+            OemToChar(sScore, tcharScore);
+            TextOut(hdc, 1150, 250, tcharScore, _tcslen(tcharScore));
             EndPaint(hWnd, &ps);
         }
         break;

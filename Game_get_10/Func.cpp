@@ -5,7 +5,8 @@
 #define N 5
 int size = 50;
 int Field[N][N];
-int movementFromWall = 100;
+extern int score;
+int movementFromWall = 200;
 void generateField() {
 	srand(time(NULL));
 	for (int i = 0; i < N; ++i) {
@@ -20,7 +21,6 @@ void drawField(HDC hdc) {
 	HBRUSH hbrush_2 = CreateSolidBrush(RGB(0, 255, 0));
 	HBRUSH hbrush_3 = CreateSolidBrush(RGB(0, 0, 255));
 	SelectObject(hdc, hpen);
-	generateField();
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
 			RECT rect = { i * size + movementFromWall, j * size + movementFromWall, (i + 1) * size + movementFromWall, (j + 1) * size + movementFromWall };
@@ -36,6 +36,11 @@ void drawField(HDC hdc) {
 				break;
 			}
 		}
+	}
+}
+void checkMouse(int x, int y) {
+	if ((x >= 200 && x <= 200 + 50 * N) && (y >= 200 && y <= 200 + 50 * N)) {
+		score++;
 	}
 }
 
