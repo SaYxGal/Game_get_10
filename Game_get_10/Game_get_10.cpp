@@ -156,12 +156,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // TODO: Добавьте сюда любой код прорисовки, использующий HDC...
             drawField(hdc);
             TCHAR string1[] = _T("Счёт:");
-            TextOut(hdc, 1100, 250, string1, _tcslen(string1));
+            TextOut(hdc, 800, 250, string1, _tcslen(string1));
             char sScore[5];
             TCHAR tcharScore[5];
             sprintf_s(sScore, 5, "%d", score);
             OemToChar(sScore, tcharScore);
-            TextOut(hdc, 1150, 250, tcharScore, _tcslen(tcharScore));
+            TextOut(hdc, 850, 250, tcharScore, _tcslen(tcharScore));
             EndPaint(hWnd, &ps);
         }
         break;

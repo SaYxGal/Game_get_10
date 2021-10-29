@@ -38,9 +38,32 @@ void drawField(HDC hdc) {
 		}
 	}
 }
+void checkPlus(int pos_x, int pos_y, int num_of_box) {
+	if (pos_x + 1 < N && Field[pos_x + 1][pos_y] == num_of_box) {
+		Field[pos_x + 1][pos_y] = -1;
+		checkPlus(pos_x + 1, pos_y, num_of_box);
+	}
+	if (pos_x - 1 >= 0 && Field[pos_x - 1][pos_y] == num_of_box) {
+		Field[pos_x - 1][pos_y] = -1;
+		checkPlus(pos_x - 1, pos_y, num_of_box);
+	}
+	if (pos_y - 1 >= 0 && Field[pos_x][pos_y - 1] == num_of_box) {
+		Field[pos_x][pos_y - 1] = -1;
+		checkPlus(pos_x, pos_y - 1, num_of_box);
+	}
+	if (pos_y + 1 < N && Field[pos_x][pos_y + 1] == num_of_box) {
+		Field[pos_x][pos_y + 1] = -1;
+		checkPlus(pos_x, pos_y + 1, num_of_box);
+	}
+}
 void checkMouse(int x, int y) {
 	if ((x >= 200 && x <= 200 + 50 * N) && (y >= 200 && y <= 200 + 50 * N)) {
 		score++;
+		int num_x = int((x - movementFromWall) / 50);
+		int num_y = int((y - movementFromWall) / 50);
+		int num_in_box = Field[num_x][num_y];
+		checkPlus(num_x, num_y, num_in_box);
+		Field[num_x][num_y] = num_in_box + 1;
 	}
 }
 
