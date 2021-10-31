@@ -147,7 +147,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         InvalidateRect(hWnd, NULL, TRUE);
         break;
     case WM_CREATE:
-        generateField();
+        if (loadFile() == 0) {
+            generateField();
+        }
         break;
     case WM_PAINT:
         {
@@ -166,6 +168,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+        saveFile(); //блок для сохранения
         PostQuitMessage(0);
         break;
     default:

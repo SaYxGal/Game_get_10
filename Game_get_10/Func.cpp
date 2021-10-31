@@ -5,6 +5,7 @@
 #define N 5
 int size = 50;
 int Field[N][N];
+bool check = false;
 extern int score;
 int movementFromWall = 200;
 void generateField() {
@@ -12,6 +13,56 @@ void generateField() {
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
 			Field[i][j] = rand() % 3 + 1;
+		}
+	}
+}
+int is_empty_file(FILE* fp) {
+	int c = getc(fp);
+	if (c == EOF)
+		return 1;
+	ungetc(c, fp);
+	return 0;
+}
+int loadFile() {
+	FILE* fin = fopen("save.txt", "rt");
+	if (fin == NULL) {
+		printf("File %s is not opened", "save.txt");
+		return 0;
+	}
+	if (is_empty_file(fin)) {
+		return 0;
+	}
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			fscanf_s(fin, "%d", &Field[i][j]);
+		}
+	}
+	fscanf_s(fin, "%d", &score);
+	fclose(fin);
+	return 1;
+}
+int saveFile() {
+	FILE* fin = fopen("save.txt", "wt");
+	if (fin == NULL) {
+		printf("File %s is not opened", "save.txt");
+		return 0;
+	}
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			fprintf(fin, "%d ", Field[i][j]);
+		}
+		fprintf(fin, "\n");
+	}
+	fprintf(fin, "%d", score);
+	fclose(fin);
+	return 1;
+}
+void fillField() {
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			if (Field[i][j] == -1) {
+				Field[i][j] = rand() % 3 + 1;
+			}
 		}
 	}
 }
@@ -42,18 +93,22 @@ void checkPlus(int pos_x, int pos_y, int num_of_box) {
 	if (pos_x + 1 < N && Field[pos_x + 1][pos_y] == num_of_box) {
 		Field[pos_x + 1][pos_y] = -1;
 		checkPlus(pos_x + 1, pos_y, num_of_box);
+		check = true;
 	}
 	if (pos_x - 1 >= 0 && Field[pos_x - 1][pos_y] == num_of_box) {
 		Field[pos_x - 1][pos_y] = -1;
 		checkPlus(pos_x - 1, pos_y, num_of_box);
+		check = true;
 	}
 	if (pos_y - 1 >= 0 && Field[pos_x][pos_y - 1] == num_of_box) {
 		Field[pos_x][pos_y - 1] = -1;
 		checkPlus(pos_x, pos_y - 1, num_of_box);
+		check = true;
 	}
 	if (pos_y + 1 < N && Field[pos_x][pos_y + 1] == num_of_box) {
 		Field[pos_x][pos_y + 1] = -1;
 		checkPlus(pos_x, pos_y + 1, num_of_box);
+		check = true;
 	}
 }
 void checkMouse(int x, int y) {
@@ -63,7 +118,11 @@ void checkMouse(int x, int y) {
 		int num_y = int((y - movementFromWall) / 50);
 		int num_in_box = Field[num_x][num_y];
 		checkPlus(num_x, num_y, num_in_box);
-		Field[num_x][num_y] = num_in_box + 1;
+		if (check) {
+			Field[num_x][num_y] = num_in_box + 1;
+			fillField();
+			check = false;
+		}
 	}
 }
 
