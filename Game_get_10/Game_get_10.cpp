@@ -11,6 +11,7 @@ HINSTANCE hInst;                                // текущий экземпл
 WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
 int score = 0;
+int flag = 1;
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -143,7 +144,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_LBUTTONDOWN:
-        checkMouse(LOWORD(lParam), HIWORD(lParam));
+        if (flag == 0) {
+            checkMouse(LOWORD(lParam), HIWORD(lParam));
+        }
+        else {
+            if (LOWORD(lParam) >= 700 && LOWORD(lParam) <= 900 && HIWORD(lParam) >= 300 && HIWORD(lParam) <= 350) {
+                flag = 0;
+            }
+        }
         InvalidateRect(hWnd, NULL, TRUE);
         break;
     case WM_CREATE:
@@ -156,14 +164,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Добавьте сюда любой код прорисовки, использующий HDC...
-            drawField(hdc);
-            TCHAR string1[] = _T("Счёт:");
-            TextOut(hdc, 800, 250, string1, _tcslen(string1));
-            char sScore[5];
-            TCHAR tcharScore[5];
-            sprintf_s(sScore, 5, "%d", score);
-            OemToChar(sScore, tcharScore);
-            TextOut(hdc, 850, 250, tcharScore, _tcslen(tcharScore));
+            if(flag) {
+                drawBeginWindow(hdc);
+            }
+            else {
+                drawField(hdc);
+                TCHAR string1[] = _T("Счёт:");
+                TextOut(hdc, 800, 250, string1, _tcslen(string1));
+                char sScore[5];
+                TCHAR tcharScore[5];
+                sprintf_s(sScore, 5, "%d", score);
+                OemToChar(sScore, tcharScore);
+                TextOut(hdc, 850, 250, tcharScore, _tcslen(tcharScore));
+            }
             EndPaint(hWnd, &ps);
         }
         break;

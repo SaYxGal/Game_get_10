@@ -66,6 +66,29 @@ void fillField() {
 		}
 	}
 }
+void drawBeginWindow(HDC hdc) {
+	HFONT hFont;
+	hFont = CreateFont(20,
+		0, 0, 0, 0, 0, 0, 0,
+		DEFAULT_CHARSET,
+		0, 0, 0, 0,
+		L"Courier New"
+	);
+	SelectObject(hdc, hFont);
+	SetTextColor(hdc, RGB(148, 0, 211));
+	TCHAR  string1[] = _T("Вы хотите усложнить игру?");
+	TCHAR  string2[] = _T("Да!");
+	TCHAR  string3[] = _T("Нет");
+	TextOut(hdc, 500, 200, (LPCWSTR)string1, _tcslen(string1));
+	HPEN hPen = CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+	SelectObject(hdc, hPen);
+	Rectangle(hdc, 350, 300, 550, 350);
+	TextOut(hdc, 425, 310, (LPCWSTR)string2, _tcslen(string2));
+	Rectangle(hdc, 700, 300, 900, 350);
+	TextOut(hdc, 775, 310, (LPCWSTR)string3, _tcslen(string3));
+	DeleteObject(hPen);
+	DeleteObject(hFont);
+}
 void drawField(HDC hdc) {
 	HPEN hpen = CreatePen(PS_SOLID, 5, RGB(0, 0, 0));
 	HBRUSH hbrush_1 = CreateSolidBrush(RGB(255, 0, 0));
