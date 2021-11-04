@@ -12,6 +12,8 @@ WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки за�
 WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
 int score = 0;
 int flag = 1;
+int flag_for_hard = 0;
+int time_s = 10;
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -151,6 +153,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (LOWORD(lParam) >= 700 && LOWORD(lParam) <= 900 && HIWORD(lParam) >= 300 && HIWORD(lParam) <= 350) {
                 flag = 0;
             }
+            else if (LOWORD(lParam) >= 350 && LOWORD(lParam) <= 550 && HIWORD(lParam) >= 300 && HIWORD(lParam) <= 350) {
+                flag = 0;
+                flag_for_hard = 1;
+                SetTimer(hWnd, 1, 1000, 0);
+            }
         }
         InvalidateRect(hWnd, NULL, TRUE);
         break;
@@ -158,6 +165,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (loadFile() == 0) {
             generateField();
         }
+        break;
+    case WM_TIMER:
+        time_s--;
+        if (time_s == 0) {
+            PostQuitMessage(0);
+        }
+        InvalidateRect(hWnd, NULL, TRUE);
         break;
     case WM_PAINT:
         {
@@ -176,6 +190,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 sprintf_s(sScore, 5, "%d", score);
                 OemToChar(sScore, tcharScore);
                 TextOut(hdc, 850, 250, tcharScore, _tcslen(tcharScore));
+                if (flag_for_hard) {
+                    TCHAR string2[] = _T("Время:");
+                    TextOut(hdc, 800, 450, string2, _tcslen(string2));
+                    char sTime[5];
+                    TCHAR tcharTime[5];
+                    sprintf_s(sTime, 5, "%d", time_s);
+                    OemToChar(sTime, tcharTime);
+                    TextOut(hdc, 850, 450, tcharTime, _tcslen(tcharTime));
+                }
             }
             EndPaint(hWnd, &ps);
         }

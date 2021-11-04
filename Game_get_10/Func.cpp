@@ -8,6 +8,7 @@ int Field[N][N];
 int quest = 1;
 bool check = false;
 extern int score;
+extern int time_s;
 int movementFromWall = 200;
 void generateField() {
 	srand(time(NULL));
@@ -121,7 +122,7 @@ void drawField(HDC hdc) {
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
 			RECT rect;
-			rect = { j * size + movementFromWall, i * size + movementFromWall, (j + 1) * size + movementFromWall, (i + 1) * size + movementFromWall };
+			rect = { j * size + movementFromWall, i * size + movementFromWall, (j + 1) * size + movementFromWall, (i + 1) * size + movementFromWall };//important
 			switch (Field[i][j]) {
 			case(1):
 				FillRect(hdc, &rect, hbrush_1);
@@ -176,7 +177,7 @@ void checkPlus(int pos_x, int pos_y, int num_of_box) {
 void checkMouse(int x, int y) {
 	if ((x >= 200 && x <= 200 + 50 * N) && (y >= 200 && y <= 200 + 50 * N)) {
 		score++;
-		int num_x = int((y - movementFromWall) / 50);
+		int num_x = int((y - movementFromWall) / 50);//important
 		int num_y = int((x - movementFromWall) / 50);
 		int num_in_box = Field[num_x][num_y];
 		checkPlus(num_x, num_y, num_in_box);
@@ -185,6 +186,7 @@ void checkMouse(int x, int y) {
 			lowerBoxes();
 			fillField();
 			check = false;
+			time_s = 10;
 		}
 	}
 }
