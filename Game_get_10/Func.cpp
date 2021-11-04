@@ -5,6 +5,7 @@
 #define N 5
 int size = 50;
 int Field[N][N];
+int quest = 1;
 bool check = false;
 extern int score;
 int movementFromWall = 200;
@@ -66,6 +67,19 @@ void fillField() {
 		}
 	}
 }
+void lowerBoxes() {
+	for (int j = 0; j < N; ++j) {
+		for (int i = 0; i < N; ++i) {
+			if (Field[i][j] == -1) {
+				for (int k = i; k > 1; --k) {
+					Field[k][j] = Field[k-1][j];
+				}
+				Field[0][j] = -1;
+				break;
+			}
+		}
+	}
+}
 void drawBeginWindow(HDC hdc) {
 	HFONT hFont;
 	hFont = CreateFont(20,
@@ -94,19 +108,44 @@ void drawField(HDC hdc) {
 	HBRUSH hbrush_1 = CreateSolidBrush(RGB(255, 0, 0));
 	HBRUSH hbrush_2 = CreateSolidBrush(RGB(0, 255, 0));
 	HBRUSH hbrush_3 = CreateSolidBrush(RGB(0, 0, 255));
+	HBRUSH hbrush_4 = CreateSolidBrush(RGB(48, 213, 200));
+	HBRUSH hbrush_5 = CreateSolidBrush(RGB(155, 45, 48));
+	HBRUSH hbrush_6 = CreateSolidBrush(RGB(80, 200, 120));
 	SelectObject(hdc, hpen);
+	TCHAR nums[] = _T("1");
+	TCHAR nums1[] = _T("2");
+	TCHAR nums2[] = _T("3");
+	TCHAR nums3[] = _T("4");
+	TCHAR nums4[] = _T("5");
+	TCHAR nums5[] = _T("6");
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
-			RECT rect = { i * size + movementFromWall, j * size + movementFromWall, (i + 1) * size + movementFromWall, (j + 1) * size + movementFromWall };
+			RECT rect;
+			rect = { j * size + movementFromWall, i * size + movementFromWall, (j + 1) * size + movementFromWall, (i + 1) * size + movementFromWall };
 			switch (Field[i][j]) {
 			case(1):
 				FillRect(hdc, &rect, hbrush_1);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums, _tcslen(nums));
 				break;
 			case(2):
 				FillRect(hdc, &rect, hbrush_2);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums1, _tcslen(nums1));
 				break;
 			case(3):
 				FillRect(hdc, &rect, hbrush_3);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums2, _tcslen(nums2));
+				break;
+			case(4):
+				FillRect(hdc, &rect, hbrush_4);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums3, _tcslen(nums3));
+				break;
+			case(5):
+				FillRect(hdc, &rect, hbrush_5);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums4, _tcslen(nums4));
+				break;
+			case(6):
+				FillRect(hdc, &rect, hbrush_6);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums5, _tcslen(nums5));
 				break;
 			}
 		}
@@ -137,12 +176,13 @@ void checkPlus(int pos_x, int pos_y, int num_of_box) {
 void checkMouse(int x, int y) {
 	if ((x >= 200 && x <= 200 + 50 * N) && (y >= 200 && y <= 200 + 50 * N)) {
 		score++;
-		int num_x = int((x - movementFromWall) / 50);
-		int num_y = int((y - movementFromWall) / 50);
+		int num_x = int((y - movementFromWall) / 50);
+		int num_y = int((x - movementFromWall) / 50);
 		int num_in_box = Field[num_x][num_y];
 		checkPlus(num_x, num_y, num_in_box);
 		if (check) {
 			Field[num_x][num_y] = num_in_box + 1;
+			lowerBoxes();
 			fillField();
 			check = false;
 		}

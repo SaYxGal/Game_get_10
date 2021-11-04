@@ -4,6 +4,7 @@ void generateField();
 int is_empty_file(FILE* fp);
 int loadFile();
 int saveFile();
+void lowerBoxes();
 void fillField();
 void drawBeginWindow(HDC hdc);
 void drawField(HDC hdc);
