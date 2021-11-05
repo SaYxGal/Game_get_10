@@ -72,11 +72,10 @@ void lowerBoxes() {
 	for (int j = 0; j < N; ++j) {
 		for (int i = 0; i < N; ++i) {
 			if (Field[i][j] == -1) {
-				for (int k = i; k > 1; --k) {
+				for (int k = i; k >= 1; --k) {
 					Field[k][j] = Field[k-1][j];
 				}
 				Field[0][j] = -1;
-				break;
 			}
 		}
 	}
