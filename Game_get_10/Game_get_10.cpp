@@ -14,6 +14,7 @@ int score = 0;
 int flag = 1;
 int flag_for_hard = 0;
 int time_s = 10;
+bool isEnd = false;
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -183,6 +184,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             else {
                 drawField(hdc);
+                if (isLose()) {
+                    isEnd = true;
+                    TCHAR string4[] = _T("Вы проиграли!!");
+                    TextOut(hdc, 800, 550, string4, _tcslen(string4));
+                }
                 TCHAR string1[] = _T("Счёт:");
                 TextOut(hdc, 800, 250, string1, _tcslen(string1));
                 char sScore[5];
@@ -204,7 +210,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
-        saveFile(); //блок для сохранения
+        if (isEnd) {
+            clearFile();
+        }
+        else {
+            saveFile(); //блок для сохранения
+        }
         PostQuitMessage(0);
         break;
     default:

@@ -151,6 +151,15 @@ void drawField(HDC hdc) {
 		}
 	}
 }
+int clearFile() {
+	FILE* fin = fopen("save.txt", "wt");
+	if (fin == NULL) {
+		printf("File %s is not opened", "save.txt");
+		return 0;
+	}
+	fclose(fin);
+	return 1;
+}
 void checkPlus(int pos_x, int pos_y, int num_of_box) {
 	if (pos_x + 1 < N && Field[pos_x + 1][pos_y] == num_of_box) {
 		Field[pos_x + 1][pos_y] = -1;
@@ -173,15 +182,34 @@ void checkPlus(int pos_x, int pos_y, int num_of_box) {
 		check = true;
 	}
 }
+bool isLose() {
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			if (i + 1 < N && Field[i + 1][j] == Field[i][j]) {
+				return false;
+			}
+			if (i - 1 >=0 && Field[i - 1][j] == Field[i][j]) {
+				return false;
+			}
+			if (j - 1 >=0 && Field[i][j - 1] == Field[i][j]) {
+				return false;
+			}
+			if (j + 1 < N && Field[i][j + 1] == Field[i][j]) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
 void checkMouse(int x, int y) {
 	if ((x >= 200 && x <= 200 + 50 * N) && (y >= 200 && y <= 200 + 50 * N)) {
-		score++;
 		int num_x = int((y - movementFromWall) / 50);//important
 		int num_y = int((x - movementFromWall) / 50);
 		int num_in_box = Field[num_x][num_y];
 		checkPlus(num_x, num_y, num_in_box);
 		if (check) {
 			Field[num_x][num_y] = num_in_box + 1;
+			score++;
 			lowerBoxes();
 			fillField();
 			check = false;
