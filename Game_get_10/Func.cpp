@@ -111,6 +111,10 @@ void drawField(HDC hdc) {
 	HBRUSH hbrush_4 = CreateSolidBrush(RGB(48, 213, 200));
 	HBRUSH hbrush_5 = CreateSolidBrush(RGB(155, 45, 48));
 	HBRUSH hbrush_6 = CreateSolidBrush(RGB(80, 200, 120));
+	HBRUSH hbrush_7 = CreateSolidBrush(RGB(255, 165, 0));
+	HBRUSH hbrush_8 = CreateSolidBrush(RGB(172, 183, 142));
+	HBRUSH hbrush_9 = CreateSolidBrush(RGB(255, 127, 80));
+	HBRUSH hbrush_10 = CreateHatchBrush(5, RGB(255, 0, 0));
 	SelectObject(hdc, hpen);
 	TCHAR nums[] = _T("1");
 	TCHAR nums1[] = _T("2");
@@ -118,6 +122,10 @@ void drawField(HDC hdc) {
 	TCHAR nums3[] = _T("4");
 	TCHAR nums4[] = _T("5");
 	TCHAR nums5[] = _T("6");
+	TCHAR nums6[] = _T("7");
+	TCHAR nums7[] = _T("8");
+	TCHAR nums8[] = _T("9");
+	TCHAR nums9[] = _T("10");
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
 			RECT rect;
@@ -146,6 +154,22 @@ void drawField(HDC hdc) {
 			case(6):
 				FillRect(hdc, &rect, hbrush_6);
 				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums5, _tcslen(nums5));
+				break;
+			case(7):
+				FillRect(hdc, &rect, hbrush_7);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums6, _tcslen(nums6));
+				break;
+			case(8):
+				FillRect(hdc, &rect, hbrush_8);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums7, _tcslen(nums7));
+				break;
+			case(9):
+				FillRect(hdc, &rect, hbrush_9);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums8, _tcslen(nums8));
+				break;
+			case(10):
+				FillRect(hdc, &rect, hbrush_10);
+				TextOut(hdc, j * size + size / 2 + movementFromWall - 3, i * size + size / 2 + movementFromWall - 10, (LPCWSTR)nums9, _tcslen(nums9));
 				break;
 			}
 		}
