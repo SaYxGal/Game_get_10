@@ -187,13 +187,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (isLose()) {
                     isEnd = true;
                     TCHAR string4[] = _T("Вы проиграли!!");
+                    KillTimer(hWnd, 1);
+                    TextOut(hdc, 800, 550, string4, _tcslen(string4));
+                }
+                if (isEnd) {
+                    TCHAR string4[] = _T("Вы выиграли!!");
+                    KillTimer(hWnd, 1);
                     TextOut(hdc, 800, 550, string4, _tcslen(string4));
                 }
                 TCHAR string1[] = _T("Счёт:");
                 TextOut(hdc, 800, 250, string1, _tcslen(string1));
-                char sScore[5];
-                TCHAR tcharScore[5];
-                sprintf_s(sScore, 5, "%d", score);
+                char sScore[6];
+                TCHAR tcharScore[6];
+                sprintf_s(sScore, 6, "%d", score);
                 OemToChar(sScore, tcharScore);
                 TextOut(hdc, 850, 250, tcharScore, _tcslen(tcharScore));
                 if (flag_for_hard) {

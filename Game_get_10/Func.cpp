@@ -9,6 +9,7 @@ int quest = 1;
 bool check = false;
 extern int score;
 extern int time_s;
+extern bool isEnd;
 int movementFromWall = 200;
 void generateField() {
 	srand(time(NULL));
@@ -233,11 +234,12 @@ void checkMouse(int x, int y) {
 		checkPlus(num_x, num_y, num_in_box);
 		if (check) {
 			Field[num_x][num_y] = num_in_box + 1;
-			score++;
+			score+= 10 * Field[num_x][num_y];
 			lowerBoxes();
 			fillField();
 			check = false;
 			time_s = 10;
+			if (Field[num_x][num_y] == 10) isEnd = true;
 		}
 	}
 }
