@@ -2,14 +2,34 @@
 #include "Func.h"
 #include <time.h>
 #include <stdlib.h>
+#include <ctype.h>
 #define N 5
+#define MAX_NUM_RECORDS 10
 int size = 50;
 int Field[N][N];
 int quest = 1;
+int maxx = 1;
 bool check = false;
 extern int score;
 extern int time_s;
 extern bool isEnd;
+extern int flag;
+struct Record {
+	char name[20];
+	int max_box;
+	int points;
+	unsigned int year;
+	unsigned int month;
+	unsigned int day;
+	unsigned int hour;
+	unsigned int minute;
+	unsigned int second;
+};
+// Таблица рекордов
+struct Record records[MAX_NUM_RECORDS + 1];
+// текущее количество рекордов в таблице
+int numRecords = 0;
+
 int movementFromWall = 200;
 void generateField() {
 	srand(time(NULL));
@@ -59,6 +79,62 @@ int saveFile() {
 	fprintf(fin, "%d", score);
 	fclose(fin);
 	return 1;
+}
+void LoadRecords() {
+	// Открываем файл с рекордами на чтение
+	FILE* fout = fopen("records.txt", "rt");
+	if (fout == NULL || is_empty_file(fout)) {
+		// выходим, не загрузив рекорды из файла
+		return;
+	}
+
+	fscanf(fout, "%d", &numRecords); // количество рекордов в таблице
+
+	int i;
+	for (i = 0; i < numRecords; i++) {
+		// загружаем из файла каждое поле каждого рекорда
+		fscanf(fout, "%s%d%d%d%d%d%d%d%d\n",
+			records[i].name,
+			&records[i].max_box,
+			&records[i].points,
+			&records[i].year,
+			&records[i].month,
+			&records[i].day,
+			&records[i].hour,
+			&records[i].minute,
+			&records[i].second
+		);
+	}
+	// закрываем файл
+	fclose(fout);
+}
+void SaveRecords() {
+	// Запись в выходной файл
+	FILE* fout = fopen("records.txt", "wt");
+	if (fout == NULL) {
+		// выходим, не сохранив результаты в файл
+		return;
+	}
+
+	fprintf(fout, "%d\n", numRecords);
+
+	int i;
+	for (i = 0; i < numRecords; i++) {
+		// сохраняем в файле каждое поле каждого рекорда
+		fprintf(fout, "%s %d %d %d %d %d %d %d %d\n",
+			records[i].name,
+			records[i].max_box,
+			records[i].points,
+			records[i].year,
+			records[i].month,
+			records[i].day,
+			records[i].hour,
+			records[i].minute,
+			records[i].second
+		);
+	}
+	// закрываем файл
+	fclose(fout);
 }
 void fillField() {
 	for (int i = 0; i < N; ++i) {
@@ -226,6 +302,92 @@ bool isLose() {
 	}
 	return true;
 }
+void createWriteRecord(HWND* hBtn, HWND* hEdt1, HINSTANCE hInst, HWND hWnd, LPARAM lParam) {
+	flag = 2;
+	// Создаем и показываем поле редактирования - для ввода имени рекордсмена
+	*(hEdt1) = CreateWindowW(_T("edit"), _T("Noname"),
+		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT, 800, 300, 160, 20,
+		hWnd, 0, hInst, NULL);
+	ShowWindow(*(hEdt1), SW_SHOWNORMAL);
+	// Создаем и показываем кнопку
+	*(hBtn) = CreateWindowW(_T("button"), _T("Запомнить!"),
+		WS_CHILD | WS_VISIBLE | WS_BORDER,
+		800, 350, 160, 20, hWnd, 0, hInst, NULL);
+	ShowWindow(*(hBtn), SW_SHOWNORMAL);
+}
+void DrawRecords(HDC hdc) {
+	HFONT hFont;
+	hFont = CreateFont(16, 0, 0, 0, 0, 0, 0, 0,
+		DEFAULT_CHARSET, 0, 0, 0, 0,
+		L"Courier New"
+	);
+	SelectObject(hdc, hFont);
+	SetTextColor(hdc, RGB(0, 64, 64));
+
+	TCHAR  string1[] = _T("! No ! Дата       ! Время    ! Имя                  ! Макс. знач. ! Очков !");
+	TextOut(hdc, 10, 50, (LPCWSTR)string1, _tcslen(string1));
+
+	int i;
+	for (i = 0; i < numRecords; i++) {
+		TCHAR  string2[80];
+		char str[80];
+		sprintf(str, "! %2d ! %02d.%02d.%04d ! %02d:%02d:%02d ! %-20s ! %4d       ! %5d !",
+			i + 1,
+			records[i].day, records[i].month, records[i].year,
+			records[i].hour, records[i].minute, records[i].second,
+			records[i].name, records[i].max_box, records[i].points
+		);
+		OemToChar(str, string2);
+		TextOut(hdc, 10, 24 * (i + 1) + 50, (LPCWSTR)string2, _tcslen(string2));
+	}
+	DeleteObject(hFont);
+}
+int CompareRecords(int index1, int index2)
+{
+	if (records[index1].max_box < records[index2].max_box)
+		return -1;
+	if (records[index1].max_box > records[index2].max_box)
+		return +1;
+
+
+	if (records[index1].points < records[index2].points)
+		return -1;
+	if (records[index1].points > records[index2].points)
+		return +1;
+	return 0;
+}
+void InsertRecord(char name[])
+{
+	strcpy(records[numRecords].name, name);
+	records[numRecords].max_box = maxx;
+	records[numRecords].points = score;
+
+	SYSTEMTIME st;
+	// Получаем текущее время
+	GetLocalTime(&st);
+
+	// и разбрасываем его по полям в таблицу рекордов
+	records[numRecords].year = st.wYear;
+	records[numRecords].month = st.wMonth;
+	records[numRecords].day = st.wDay;
+
+	records[numRecords].hour = st.wHour;
+	records[numRecords].minute = st.wMinute;
+	records[numRecords].second = st.wSecond;
+	int i = numRecords;
+	while (i > 0) {
+		if (CompareRecords(i - 1, i) < 0) {
+			struct Record temp = records[i];
+			records[i] = records[i - 1];
+			records[i - 1] = temp;
+		}
+		i--;
+	}
+	// Если таблица заполнена не полностью
+	if (numRecords < MAX_NUM_RECORDS) {
+		numRecords++;
+	}
+}
 void checkMouse(int x, int y) {
 	if ((x >= 200 && x <= 200 + 50 * N) && (y >= 200 && y <= 200 + 50 * N)) {
 		int num_x = int((y - movementFromWall) / 50);//important
@@ -234,6 +396,9 @@ void checkMouse(int x, int y) {
 		checkPlus(num_x, num_y, num_in_box);
 		if (check) {
 			Field[num_x][num_y] = num_in_box + 1;
+			if (Field[num_x][num_y] > maxx) {
+				maxx = Field[num_x][num_y];
+			}
 			score+= 10 * Field[num_x][num_y];
 			lowerBoxes();
 			fillField();

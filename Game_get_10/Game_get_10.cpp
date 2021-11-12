@@ -127,30 +127,54 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static HWND hBtn; // дескриптор кнопки
+    static HWND hEdt1; // дескрипторы поля редактирования
     switch (message)
     {
     case WM_COMMAND:
         {
-            int wmId = LOWORD(wParam);
-            // Разобрать выбор в меню:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
+            if (lParam == (LPARAM)hBtn) {
+                TCHAR StrT[20];
+                char str[20];
+
+                // Берем имя из элемента редактирования и помещаем в строку Windows
+                GetWindowText(hEdt1, StrT, sizeof(StrT));
+
+                // Конвертирует строку Windows в строку Си 
+                // !!!! ВАЖНО - корректно работает ТОЛЬКО для латинских букв!
+                wcstombs(str, StrT, 20);
+
+            //обработка нажатия кнопки
+                SetFocus(hWnd);
+                //addRecord(str);
+                InsertRecord(str);
+                DestroyWindow(hBtn);
+                DestroyWindow(hEdt1);
+                InvalidateRect(hWnd, NULL, TRUE);
+            }
+            else {
+                int wmId = LOWORD(wParam);
+                // Разобрать выбор в меню:
+                switch (wmId)
+                {
+                case IDM_ABOUT:
+                    DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                    break;
+                case IDM_EXIT:
+                    DestroyWindow(hWnd);
+                    break;
+                default:
+                    return DefWindowProc(hWnd, message, wParam, lParam);
+                }
             }
         }
         break;
     case WM_LBUTTONDOWN:
         if (flag == 0) {
             checkMouse(LOWORD(lParam), HIWORD(lParam));
+            InvalidateRect(hWnd, NULL, TRUE);
         }
-        else {
+        else if(flag == 1){
             if (LOWORD(lParam) >= 700 && LOWORD(lParam) <= 900 && HIWORD(lParam) >= 300 && HIWORD(lParam) <= 350) {
                 flag = 0;
             }
@@ -159,13 +183,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 flag_for_hard = 1;
                 SetTimer(hWnd, 1, 1000, 0);
             }
+            InvalidateRect(hWnd, NULL, TRUE);
         }
-        InvalidateRect(hWnd, NULL, TRUE);
         break;
     case WM_CREATE:
         if (loadFile() == 0) {
             generateField();
         }
+        hInst = ((LPCREATESTRUCT)lParam)->hInstance; // дескриптор приложения
         break;
     case WM_TIMER:
         time_s--;
@@ -179,21 +204,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Добавьте сюда любой код прорисовки, использующий HDC...
-            if(flag) {
+            if(flag == 1) {
                 drawBeginWindow(hdc);
             }
-            else {
+            else if(flag == 0){
                 drawField(hdc);
                 if (isLose()) {
                     isEnd = true;
                     TCHAR string4[] = _T("Вы проиграли!!");
                     KillTimer(hWnd, 1);
                     TextOut(hdc, 800, 550, string4, _tcslen(string4));
+                    createWriteRecord(&hBtn, &hEdt1, hInst, hWnd, lParam);
+                    LoadRecords();
                 }
-                if (isEnd) {
+                else if (isEnd) {
                     TCHAR string4[] = _T("Вы выиграли!!");
                     KillTimer(hWnd, 1);
                     TextOut(hdc, 800, 550, string4, _tcslen(string4));
+                    createWriteRecord(&hBtn, &hEdt1, hInst, hWnd, lParam);
+                    LoadRecords();
                 }
                 TCHAR string1[] = _T("Счёт:");
                 TextOut(hdc, 800, 250, string1, _tcslen(string1));
@@ -212,6 +241,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     TextOut(hdc, 850, 450, tcharTime, _tcslen(tcharTime));
                 }
             }
+            else {
+                DrawRecords(hdc);
+            }
             EndPaint(hWnd, &ps);
         }
         break;
@@ -222,6 +254,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         else {
             saveFile(); //блок для сохранения
         }
+        SaveRecords();
         PostQuitMessage(0);
         break;
     default:
